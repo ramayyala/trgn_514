@@ -1,0 +1,116 @@
+---
+title: "SIRS VS SEPSIS"
+subtitle: "Let's do this"
+author: "Ram Ayyala "
+institute: "University of Southern California, Department of Translational Biomedical Informatics"
+date: "2021/11/30 (updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    css: [default, metropolis, metropolis-fonts]
+    lib_dir: libs
+    nature:
+      highlightStyle: arta
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+
+
+```{r setup, include=FALSE}
+options(
+  htmltools.dir.version  = FALSE,
+  htmltools.preserve.raw = FALSE # needed for windows
+)
+```
+
+```{r echo=F}
+library(tidyverse)
+library(DT)
+library(data.table)
+library(dplyr)
+```
+
+class: top, center
+# Introduction
+
+Here is some text. 
+
+- Bullet 1
+- Bullet 2
+
+``` r
+code <- "awesome"
+```
+
+And don't forget to set up __Infinite Moon Reader RStudio Addin!__
+
+---
+class: top, center
+# Sequencing Type:
+
+This is a simple introduction to Xaringan
+
+---
+
+---
+# Pre-Alignment Sequencing Metrics:
+
+Reads per sample
+```{r echo=F}
+library(data.table)
+library(DT)
+reads <- read.table('linecount.csv', header=TRUE, sep=",")
+names(reads)[1] <- "Samples"
+names(reads)[3] <- "Reads"
+reads <- reads[c("Samples","Reads")]
+reads %>% DT::datatable()
+```
+
+---
+
+---
+class: top, center
+# Tophat2 - alignment / counting / stats process description:
+
+This is a simple introduction to Xaringan
+
+---
+
+---
+class: top, center
+# Tophat2 - alignment metrics and statistics:
+
+This is a simple introduction to Xaringan
+
+---
+
+---
+class: top, center
+# Results:
+
+This is a simple introduction to Xaringan
+
+---
+
+
+---
+class: top, center
+# Pathway analysis:
+
+This is a simple introduction to Xaringan
+
+---
+
+---
+class: top, center
+# Conclusions / future studies:
+
+text
+
+---
+
+---
+class: top, center
+# References 
+
+---

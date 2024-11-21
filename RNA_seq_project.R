@@ -1,0 +1,117 @@
+setwd('G:/My Drive/Academics/TRGN 514/RNA_seq_project')
+# Load Libraries
+#install.packages("devtools")
+#devtools::install_github("qenvio/dryhic")
+#devtools::install_github("qenvio/dryhicdata")
+#library("dryhic")
+library(data.table)
+library(tidyverse)
+library(ggfortify)
+library(factoextra)
+library(ggdendro)
+library(dendextend)
+library(heatmaply)
+library(pheatmap)
+#CUFFDIFF NO STATS
+#Load Data
+data <- read.table('CuffDiff_no_stats/genes.fpkm_tracking', header=TRUE, sep="\t")
+#Select only FPKM columns
+df<-data[ , grepl( "FPKM" , names( data ) ) ]
+# Add gene id to the sorted dataframe
+gene_id <- data$gene_id
+df <- cbind(df,gene_id)
+# remove 0s from df if all of row is 0 
+df <-df[rowSums(df[1:16])>0,]
+#set gene_id as index
+rownames(df) <- df$gene_id
+gene_id <- df$gene_id
+df <- subset (df, select = -gene_id)
+#pseudo count and log10 scale
+df <- df+0.01
+df <- log10(df) 
+# Boxplot across all Samples
+ggplot(stack(df), aes(x = ind, y = values)) +
+  geom_boxplot() +
+  labs(title = "Normalized FPKM Across all Samples", x= "Samples", y="FPKM") +
+  scale_fill_brewer(palette="Dark2") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  ylim(-5,5)
+        
+#PCA
+t_df <- t(df)
+groups <- data.frame(c("Septic Shock","Septic Shock","Septic Shock","Septic Shock","Severe Sepsis","Severe Sepsis","Severe Sepsis","Severe Sepsis","SIRS","SIRS","SIRS","SIRS","Uncomplicated Sepsis","Uncomplicated Sepsis","Uncomplicated Sepsis","Uncomplicated Sepsis"))
+colnames(groups) <- c('Groups')
+autoplot(prcomp(t_df), data=groups, colour='Groups')
+
+#CUFFDIFF STATS
+#Load Data
+different <- read.table('CuffDiff_stats/different.csv', header=TRUE, sep=",")
+data <- read.table('CuffDiff_no_stats/genes.fpkm_tracking', header=TRUE, sep="\t")
+#Select only SIRS and SEV_SEP FPKM columns
+df<-data[ , grepl( "FPKM" , names( data ) ) ]
+df<-as.data.frame(df[ , grepl( paste(c("sirs","sev_sep"),collapse="|") , names( df ) ) ])
+# Add gene id to the sorted dataframe
+gene_id <- data$gene_id
+df <- cbind(df,gene_id)
+
+#Limit FPKM list to genes selected in different dataframe
+df <- as.data.frame(setDT(df)[gene_id %chin% different$gene_id])
+
+# remove 0s from df if all of row is 0 
+df <- df[rowSums(df[,1:8])>0,]
+#set gene_id as index
+rownames(df) <- df$gene_id
+gene_id <- df$gene_id
+df <- subset (df, select = -gene_id)
+#pseudo count and log10 scale
+df <- df+0.01
+df <- log10(df) 
+#PCA
+t_df <- t(df)
+groups <- data.frame(c("SIRS","SIRS","SIRS","SIRS","Severe Sepsis","Severe Sepsis","Severe Sepsis","Severe Sepsis"))
+colnames(groups) <- c('Groups')
+autoplot(prcomp(t_df), data=groups, colour='Groups')
+
+#Dendogram
+#getting euclidean distance and pearson correlation
+dist.eucl <- dist(t_df, method="euclidean")
+dist.cor <- get_dist(t_df,method="pearson")
+
+#Determince clusters
+#fviz_nbclust(t_df, kmeans, method = "silhouette")
+
+
+hclust.ward.eucl <- hclust(d=dist.eucl, method = "ward.D2")
+hclust.ward.cor <- hclust(d=dist.cor, method = "ward.D2")
+hclust.complete.eucl <- hclust(d=dist.eucl, method= "complete")
+hclust.complete.cor <- hclust(d=dist.cor, method = "complete")
+
+plot(hclust.ward.eucl, labels=FALSE, main= "Euclidian - Ward's")
+plot(hclust.ward.cor, labels=FALSE, main= "Pearson's Correlation - Ward's")
+plot(hclust.complete.eucl, labels=FALSE, main= "Euclidian - Complete")
+plot(hclust.complete.cor, labels=FALSE, main= "Pearson's Correlation - Complete")
+
+#fviz_dend(hclust.ward.eucl, k=2, show_labels = TRUE, k_colors = c("#2E9FDF", "#E7B800"), color_labels_by_k = TRUE, rect = TRUE)
+
+dend <- hclust.ward.eucl %>% as.dendrogram %>%
+  set("branches_k_color",value = c("red", "blue"), k = 2) %>% set("branches_lwd", 1) %>%
+  set("labels_col", value = c("red", "blue"), k=2) %>% set("labels_cex", 0.5) %>% 
+  set("leaves_pch", 20) %>% set("leaves_cex", 1) %>% set("leaves_col", value = c("red", "blue"), k=2) %>%
+  set("labels", c(
+    "SEV_SEP_SRR1656521","SEV_SEP_SRR1656527","SEV_SEP_SRR1656535",
+    "SEV_SEP_SRR1656531","SIRS_SRR1656478","SIRS_SRR1656474","SIRS_SRR1656471","SIRS_SRR1656472"))
+# plot the dend in usual "base" plotting engine:
+plot(dend)
+ggd1 <- as.ggdend(dend)
+ggplot(ggd1,horiz = TRUE,theme = theme_minimal()) +
+  labs(title = "Severe Sepsis vs SIRS Dendrogram", x= "Samples", y="Height")
+
+#HEATMAP
+mat <- df
+mat[] <- paste("This cell is", rownames(mat))
+mat[] <- lapply(colnames(mat), function(colname) {
+  paste0(mat[, colname], ", ", colname)
+})
+heatmaply(df,k_col = 2,colors = viridis(n = 256,  option = "magma"),custom_hovertext = mat)
+
+pheatmap(df,main = "pheatmap default")

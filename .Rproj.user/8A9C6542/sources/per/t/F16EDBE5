@@ -1,0 +1,28 @@
+{
+    "id": "F16EDBE5",
+    "path": null,
+    "project_path": null,
+    "type": "object_explorer",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1660200458480.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "id": "1489faa196ea46a1bcaf726f0ac91e9c",
+        "name": "sum",
+        "title": "sum",
+        "language": "R",
+        "source_window_id": "",
+        "Source": "Source"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 2369622128080,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1660200458480,
+    "read_only": false,
+    "read_only_alternatives": []
+}
