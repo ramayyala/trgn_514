@@ -95,7 +95,7 @@ reads %>%
 
 ## Tophat2 - alignment / counting / stats process description:
 
-![TopHat2 Workflow](TopHat2_Workflow.png)
+![TopHat2 Workflow](Figures/TopHat2_Workflow.png)
 
 
 ## Tophat2 - alignment metrics and statistics:
